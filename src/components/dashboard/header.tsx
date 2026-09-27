@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Menu, Moon, Sparkles, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatClockDate, formatClockTime } from "@/lib/format";
@@ -9,21 +9,35 @@ import { cn } from "@/lib/utils";
 interface DashboardHeaderProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  onMenuClick?: () => void;
   daysLeft?: number;
+}
+
+function subscribeClock(onStoreChange: () => void) {
+  const id = window.setInterval(onStoreChange, 1000);
+  return () => window.clearInterval(id);
+}
+
+function getClockSnapshot() {
+  return Date.now();
+}
+
+function getServerClockSnapshot() {
+  return 0;
 }
 
 export function DashboardHeader({
   darkMode,
   onToggleDarkMode,
+  onMenuClick,
   daysLeft = 28,
 }: DashboardHeaderProps) {
-  const [now, setNow] = useState<Date | null>(null);
-
-  useEffect(() => {
-    setNow(new Date());
-    const id = window.setInterval(() => setNow(new Date()), 1000);
-    return () => window.clearInterval(id);
-  }, []);
+  const nowMs = useSyncExternalStore(
+    subscribeClock,
+    getClockSnapshot,
+    getServerClockSnapshot
+  );
+  const now = nowMs ? new Date(nowMs) : null;
 
   return (
     <header className="border-b border-border bg-white dark:bg-card">
@@ -31,8 +45,9 @@ export function DashboardHeader({
         <Button
           variant="ghost"
           size="icon"
-          className="shrink-0 text-muted-foreground"
+          className="shrink-0 text-muted-foreground lg:hidden"
           aria-label="Open menu"
+          onClick={onMenuClick}
         >
           <Menu className="size-5" />
         </Button>

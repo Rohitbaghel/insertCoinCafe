@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useCafe } from "@/components/cafe-provider";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 interface StationCardProps {
   station: Station;
+  resourceLabel: string;
   onStart: (id: string) => void;
   onPause: (id: string) => void;
   onDone: (id: string) => void;
@@ -28,6 +30,7 @@ interface StationCardProps {
 
 export function StationCard({
   station,
+  resourceLabel,
   onStart,
   onPause,
   onDone,
@@ -36,6 +39,7 @@ export function StationCard({
   onNoteChange,
   onPlayerCountChange,
 }: StationCardProps) {
+  const { rateConfigs } = useCafe();
   const [now, setNow] = useState(() => Date.now());
   const isActive = station.status === "running" || station.status === "paused";
   const isRunning = station.status === "running";
@@ -47,7 +51,7 @@ export function StationCard({
   }, [isRunning, station.timerEnabled]);
 
   const elapsed = getElapsedSeconds(station, now);
-  const cost = getRunningCost(station, now);
+  const cost = getRunningCost(station, now, rateConfigs);
   const startLabel = formatStartTime(station.sessionStartedAt);
   const statusColor =
     station.status === "running" && station.timerEnabled
@@ -73,7 +77,7 @@ export function StationCard({
             aria-hidden
           />
           <h3 className="truncate font-semibold text-foreground">
-            {station.seatLabel} - {station.resource}
+            {station.seatLabel} - {resourceLabel}
           </h3>
         </div>
         <label className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">

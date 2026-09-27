@@ -2,17 +2,17 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { BillingPanel } from "@/components/dashboard/billing-panel";
-import { DashboardHeader } from "@/components/dashboard/header";
 import { StationCard } from "@/components/dashboard/station-card";
 import { StatsBar } from "@/components/dashboard/stats-bar";
+import { useCafe } from "@/components/cafe-provider";
 import {
-  DEFAULT_STATIONS,
   getElapsedSeconds,
   getRunningCost,
   resourceCounts,
   type CompletedSession,
   type Station,
 } from "@/lib/cafe";
+import { displayResourceLabel } from "@/lib/rate-card";
 
 function idleStation(station: Station): Station {
   return {
@@ -27,37 +27,33 @@ function idleStation(station: Station): Station {
 }
 
 export function CafeDashboard() {
-  const [stations, setStations] = useState<Station[]>(DEFAULT_STATIONS);
-  const [sessions, setSessions] = useState<CompletedSession[]>([]);
+  const {
+    stations,
+    setStations,
+    sessions,
+    setSessions,
+    revenue,
+    setRevenue,
+    rateConfigs,
+    showToast,
+  } = useCafe();
+
   const [showRevenue, setShowRevenue] = useState(false);
-  const [revenue, setRevenue] = useState(0);
   const [discountValue, setDiscountValue] = useState(0);
   const [isPercentDiscount, setIsPercentDiscount] = useState(false);
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerName, setCustomerName] = useState("");
-  const [darkMode, setDarkMode] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
 
-  const counts = useMemo(() => resourceCounts(stations), [stations]);
-
-  const showToast = useCallback((message: string) => {
-    setToast(message);
-    window.setTimeout(() => setToast(null), 2500);
-  }, []);
-
-  const toggleDarkMode = useCallback(() => {
-    setDarkMode((prev) => {
-      const next = !prev;
-      document.documentElement.classList.toggle("dark", next);
-      return next;
-    });
-  }, []);
+  const counts = useMemo(
+    () => resourceCounts(stations, rateConfigs),
+    [stations, rateConfigs]
+  );
 
   const updateStation = useCallback(
     (id: string, updater: (s: Station) => Station) => {
       setStations((prev) => prev.map((s) => (s.id === id ? updater(s) : s)));
     },
-    []
+    [setStations]
   );
 
   const handleStart = useCallback(
@@ -73,6 +69,8 @@ export function CafeDashboard() {
             timerEnabled: true,
           };
         }
+        const key = s.resource === "PS3" ? "ps3" : "ps4";
+        const interval = (rateConfigs[key]?.intervalMinutes ?? 30) * 60;
         return {
           ...s,
           status: "running",
@@ -80,10 +78,11 @@ export function CafeDashboard() {
           sessionStartedAt: now,
           accumulatedMs: 0,
           timerEnabled: true,
+          paidSeconds: interval,
         };
       });
     },
-    [updateStation]
+    [rateConfigs, updateStation]
   );
 
   const handlePause = useCallback(
@@ -114,13 +113,14 @@ export function CafeDashboard() {
         if (!station || station.status === "idle") return prev;
 
         const durationSeconds = getElapsedSeconds(station, now);
-        const cost = getRunningCost(station, now);
+        const cost = getRunningCost(station, now, rateConfigs);
 
         const completed: CompletedSession = {
           id: `session-${id}-${now}`,
           stationId: station.id,
           seatLabel: station.seatLabel,
           resource: station.resource,
+          resourceLabel: displayResourceLabel(station.resource, rateConfigs),
           durationSeconds,
           cost,
           note: station.note,
@@ -137,7 +137,7 @@ export function CafeDashboard() {
         return prev.map((s) => (s.id === id ? idleStation(s) : s));
       });
     },
-    [showToast]
+    [rateConfigs, setRevenue, setSessions, setStations, showToast]
   );
 
   const handleReset = useCallback(
@@ -153,7 +153,6 @@ export function CafeDashboard() {
       updateStation(id, (s) => {
         if (s.status === "running" && s.startedAt != null) {
           if (!enabled && s.timerEnabled) {
-            // Freeze: bank elapsed so far
             return {
               ...s,
               timerEnabled: false,
@@ -178,12 +177,10 @@ export function CafeDashboard() {
   const handleResetAll = useCallback(() => {
     setStations((prev) => prev.map(idleStation));
     showToast("All stations reset");
-  }, [showToast]);
+  }, [setStations, showToast]);
 
   return (
-    <div className="flex min-h-full flex-col bg-[#f3f4f6] dark:bg-background">
-      <DashboardHeader darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
-
+    <div className="flex min-h-0 flex-1 flex-col">
       <StatsBar
         resourceCounts={counts}
         revenue={revenue}
@@ -201,16 +198,20 @@ export function CafeDashboard() {
               <StationCard
                 key={station.id}
                 station={station}
+                resourceLabel={displayResourceLabel(
+                  station.resource,
+                  rateConfigs
+                )}
                 onStart={handleStart}
                 onPause={handlePause}
                 onDone={handleDone}
                 onReset={handleReset}
                 onToggleTimer={handleToggleTimer}
-                onNoteChange={(id, note) =>
-                  updateStation(id, (s) => ({ ...s, note }))
+                onNoteChange={(sid, note) =>
+                  updateStation(sid, (s) => ({ ...s, note }))
                 }
-                onPlayerCountChange={(id, count) =>
-                  updateStation(id, (s) => ({ ...s, playerCount: count }))
+                onPlayerCountChange={(sid, count) =>
+                  updateStation(sid, (s) => ({ ...s, playerCount: count }))
                 }
               />
             ))}
@@ -243,15 +244,6 @@ export function CafeDashboard() {
           </div>
         </div>
       </div>
-
-      {toast && (
-        <div
-          role="status"
-          className="fixed right-4 bottom-4 z-50 rounded-lg border border-border bg-white px-4 py-2.5 text-sm shadow-lg dark:bg-card"
-        >
-          {toast}
-        </div>
-      )}
     </div>
   );
 }

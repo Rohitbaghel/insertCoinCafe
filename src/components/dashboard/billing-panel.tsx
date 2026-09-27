@@ -81,7 +81,8 @@ export function BillingPanel({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <p className="truncate text-sm font-medium">
-                    {session.seatLabel} · {session.resource}
+                    {session.seatLabel} ·{" "}
+                    {session.resourceLabel ?? session.resource}
                   </p>
                   <span className="shrink-0 text-sm font-semibold tabular-nums">
                     {formatCurrency(session.cost)}

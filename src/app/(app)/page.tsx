@@ -1,5 +1,5 @@
 import { CafeDashboard } from "@/components/dashboard/cafe-dashboard";
 
-export default function Home() {
+export default function HomePage() {
   return <CafeDashboard />;
 }
