@@ -17,9 +17,10 @@ export function DashboardHeader({
   onToggleDarkMode,
   daysLeft = 28,
 }: DashboardHeaderProps) {
-  const [now, setNow] = useState(() => new Date());
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setNow(new Date());
     const id = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(id);
   }, []);
@@ -80,11 +81,17 @@ export function DashboardHeader({
           </div>
 
           <div className="rounded-md border border-border bg-muted/60 px-3 py-1.5 text-center leading-tight dark:bg-muted/30">
-            <div className="font-mono text-sm font-semibold tabular-nums">
-              {formatClockTime(now)}
+            <div
+              className="font-mono text-sm font-semibold tabular-nums"
+              suppressHydrationWarning
+            >
+              {now ? formatClockTime(now) : "--:--:--"}
             </div>
-            <div className="text-[10px] text-muted-foreground">
-              {formatClockDate(now)}
+            <div
+              className="text-[10px] text-muted-foreground"
+              suppressHydrationWarning
+            >
+              {now ? formatClockDate(now) : "—"}
             </div>
             <div className="text-[10px] text-muted-foreground">Asia/Kolkata</div>
           </div>

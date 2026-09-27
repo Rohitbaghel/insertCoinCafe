@@ -20,16 +20,25 @@ State is client-side only for this slice (no auth or database).
 
 ```bash
 npm install
-npm run dev -- --port 43127
+npm run build
+npm run start
 ```
 
 Open [http://127.0.0.1:43127](http://127.0.0.1:43127).
+
+For hot-reload development:
+
+```bash
+npm run dev
+```
+
+(`dev` uses webpack on port **43127**.)
 
 ## Scripts
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Development server |
+| `npm run dev` | Development server (webpack, port 43127) |
 | `npm run build` | Production build |
-| `npm run start` | Serve production build |
+| `npm run start` | Serve production build on port 43127 |
 | `npm run lint` | ESLint |

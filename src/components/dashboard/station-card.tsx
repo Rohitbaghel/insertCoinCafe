@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -100,38 +99,38 @@ export function StationCard({
       </div>
 
       <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Button
-          size="sm"
+        <button
+          type="button"
           disabled={station.status === "running"}
           onClick={() => onStart(station.id)}
-          className="bg-[#4f46e5] text-white hover:bg-[#4338ca] disabled:opacity-40"
+          className="h-8 rounded-lg bg-[#4f46e5] px-2.5 text-sm font-medium text-white hover:bg-[#4338ca] disabled:pointer-events-none disabled:opacity-40"
         >
           Start
-        </Button>
-        <Button
-          size="sm"
+        </button>
+        <button
+          type="button"
           disabled={station.status !== "running"}
           onClick={() => onPause(station.id)}
-          className="bg-[#312e81] text-white hover:bg-[#1e1b4b] disabled:opacity-40"
+          className="h-8 rounded-lg bg-[#312e81] px-2.5 text-sm font-medium text-white hover:bg-[#1e1b4b] disabled:pointer-events-none disabled:opacity-40"
         >
           Pause
-        </Button>
-        <Button
-          size="sm"
+        </button>
+        <button
+          type="button"
           disabled={!isActive}
           onClick={() => onDone(station.id)}
-          className="bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-40"
+          className="h-8 rounded-lg bg-orange-500 px-2.5 text-sm font-medium text-white hover:bg-orange-600 disabled:pointer-events-none disabled:opacity-40"
         >
           Done
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
+        </button>
+        <button
+          type="button"
           disabled={!isActive && elapsed === 0}
           onClick={() => onReset(station.id)}
+          className="h-8 rounded-lg bg-secondary px-2.5 text-sm font-medium text-secondary-foreground hover:bg-secondary/80 disabled:pointer-events-none disabled:opacity-40"
         >
           Reset
-        </Button>
+        </button>
       </div>
 
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
