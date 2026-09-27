@@ -4,11 +4,11 @@ Operator dashboard for InsertCoinCafe gaming cafe billing: live station timers, 
 
 ## Features
 
-- **Left sidebar** — Dashboard, Shop Setup (Rate Card + stubs), Rewards, Reports, PC Lock, bookings, tournaments, plans
+- **Left sidebar** — Dashboard, Customer Site, Shop Setup (Rate Card + stubs), and more
 - **Active sessions** — Start / Pause / Done / Reset per seat with HH:MM:SS timers (Asia/Kolkata)
 - **Rate Card** — Game type grid, Fixed Interval vs Custom Time Slot, interval minutes + ₹ price; locked while stations of that type run
+- **Customer site (`/play`)** — Marketing home, OTP login, 1-hour slot booking, confirmation, rewards/points
 - **Billing** — Session cost uses rate-card interval pricing; discount/adjustment, final total, customer phone/name
-- **Ops bar** — Resource counts, show/hide revenue, snacks / transfer / reset-all actions
 
 State is client-side only for this slice (no auth or database).
 
@@ -25,7 +25,9 @@ npm run build
 npm run start
 ```
 
-Open [http://127.0.0.1:43127](http://127.0.0.1:43127) — Rate Card at [/rate-card](http://127.0.0.1:43127/rate-card).
+- Operator desk: [http://127.0.0.1:43127](http://127.0.0.1:43127)
+- Rate Card: [http://127.0.0.1:43127/rate-card](http://127.0.0.1:43127/rate-card)
+- Customer site: [http://127.0.0.1:43127/play](http://127.0.0.1:43127/play)
 
 For hot-reload development:
 

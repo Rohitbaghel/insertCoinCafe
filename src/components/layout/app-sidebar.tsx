@@ -103,6 +103,15 @@ export function AppSidebar({ open, onClose }: AppSidebarProps) {
             Dashboard
           </NavLink>
 
+          <NavLink
+            href="/play"
+            active={pathname.startsWith("/play")}
+            onNavigate={onClose}
+            icon={Gamepad2}
+          >
+            Customer Site
+          </NavLink>
+
           <div>
             <button
               type="button"

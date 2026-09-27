@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { CafeProvider, useCafe } from "@/components/cafe-provider";
+import { useCafe } from "@/components/cafe-provider";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard/header";
 
-function ShellInner({ children }: { children: React.ReactNode }) {
+export function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { darkMode, toggleDarkMode, toast } = useCafe();
 
@@ -29,13 +29,5 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         </div>
       )}
     </div>
-  );
-}
-
-export function AppShell({ children }: { children: React.ReactNode }) {
-  return (
-    <CafeProvider>
-      <ShellInner>{children}</ShellInner>
-    </CafeProvider>
   );
 }
